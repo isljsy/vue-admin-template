@@ -1,6 +1,6 @@
 <template>
   <div class="edit-container">
-    <h1 style="font-size:50px;padding-left:10px">字</h1>
+    <h1 style="font-size:50px;padding-left:10px">{{ word }}</h1>
 
 
     <!-- 基本信息-- 以下 -->
@@ -51,72 +51,60 @@
             <el-form-item>
               <el-tag>南部</el-tag>
             </el-form-item>
-            <el-form-item label="红河" prop="req">
-              <el-input v-model="baseInfo.count"></el-input>
-            </el-form-item>
-            <el-form-item label="蒙自" prop="req">
-              <el-input v-model="baseInfo.count"></el-input>
-            </el-form-item>
-            <el-form-item label="元阳" prop="req">
-              <el-input v-model="baseInfo.count"></el-input>
-            </el-form-item>
-            <el-form-item label="昆明" prop="req">
-              <el-input v-model="baseInfo.count"></el-input>
-            </el-form-item>
-            <el-form-item label="石屏" prop="req">
-              <el-input v-model="baseInfo.count"></el-input>
+            <el-form-item v-for="ele in pinyinInfo.southList" :label="ele.local" prop="req">
+              <el-input v-model="ele.pinyin"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="4">
             <el-form-item>
               <el-tag>东部</el-tag>
             </el-form-item>
-            <el-form-item label="隆林" prop="req">
-              <el-input v-model="baseInfo.count"></el-input>
+            <el-form-item v-for="ele in pinyinInfo.eastList" :label="ele.local" prop="req">
+              <el-input v-model="ele.pinyin"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="4">
             <el-form-item>
               <el-tag>西部</el-tag>
             </el-form-item>
-            <el-form-item label="怒江" prop="req">
-              <el-input v-model="baseInfo.count"></el-input>
+            <el-form-item v-for="ele in pinyinInfo.westList" :label="ele.local" prop="req">
+              <el-input v-model="ele.pinyin"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="4">
             <el-form-item>
               <el-tag>北部</el-tag>
             </el-form-item>
-            <el-form-item label="德喜" prop="req">
-              <el-input v-model="baseInfo.count"></el-input>
+            <el-form-item v-for="ele in pinyinInfo.northList" :label="ele.local" prop="req">
+              <el-input v-model="ele.pinyin"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="4">
             <el-form-item>
               <el-tag>东南</el-tag>
             </el-form-item>
-            <el-form-item label="易门" prop="req">
-              <el-input v-model="baseInfo.count"></el-input>
+            <el-form-item v-for="ele in pinyinInfo.southeastList" :label="ele.local" prop="req">
+              <el-input v-model="ele.pinyin"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="4">
             <el-form-item>
               <el-tag>中部</el-tag>
             </el-form-item>
-            <el-form-item label="楚雄" prop="req">
-              <el-input v-model="baseInfo.count"></el-input>
+            <el-form-item v-for="ele in pinyinInfo.middleList" :label="ele.local" prop="req">
+              <el-input v-model="ele.pinyin"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-form-item>
-          <el-button type="primary" @click="onBaseInfoSubmit">确定修改</el-button>
+          <el-button type="primary" @click="onPinyinInfoSubmit">确定修改</el-button>
         </el-form-item>
       </el-form>
     </el-card>
     <!-- 拼音信息-- 以上 -->
 
     <!-- 释义信息-- 以下 -->
-    <el-card class="box-card" >
+    <el-card class="box-card">
       <div slot="header" class="clearfix">
         <span>释义信息</span>
       </div>
@@ -131,7 +119,6 @@
 
           <el-form-item label="释义：">
             <el-input v-model="ele.explain"></el-input>
-
           </el-form-item>
 
           <el-form-item label="例句：">
@@ -159,7 +146,7 @@
 
 
 
-      <el-button type="primary" @click="onBaseInfoSubmit">确定修改</el-button>
+      <el-button type="primary" @click="onExplainInfoSubmit">确定修改</el-button>
 
 
     </el-card>
@@ -169,6 +156,9 @@
 </template>
 
 <script>
+import { getWord, updateBase, updatePinyin, updateExplain } from '@/api/word'
+
+
 
 
 export default {
@@ -177,6 +167,7 @@ export default {
     return {
       "baseDisEditable": true,
       "pinyinDisEditable": true,
+      word: "字",
       "baseInfo": {
         "redical": "",
         "count": "",
@@ -187,6 +178,10 @@ export default {
         "req": [{ required: true }]
       },
       pinyinInfo: {
+        northList: [{
+          local: "隆林",
+          pinyin: "longlin"
+        }], southList: [], eastList: [], westList: [], middleList: [], southeastList: []
 
       },
       explainList: [
@@ -233,17 +228,16 @@ export default {
       }
     },
     onBaseInfoSubmit() {
-      this.$refs["baseInfo"].validate((valid) => {
-        if (valid) {
-          alert('submit!');
-        } else {
-          console.log('error submit!!');
-          return false;
-        }
-      });
+      updateBase(this.baseInfo)
+    },
+    onPinyinInfoSubmit() {
+      updatePinyin(this.pinyinInfo)
+    },
+    onExplainInfoSubmit() {
+      updateExplain(this.explainList )
     },
     baseEditableBtn() {
-      this.baseEdistableBtn = !this.baseDisEditable;
+      this.baseDisEditable = !this.baseDisEditable;
     },
     pinyinEditableBtn() {
       this.pinyinDisEditable = !this.pinyinDisEditable;
@@ -297,7 +291,7 @@ export default {
 
 .explain-form .el-input {
   margin-right: 10px;
-  width: 50%;
+  width: 70%;
   vertical-align: top;
 }
 </style>
